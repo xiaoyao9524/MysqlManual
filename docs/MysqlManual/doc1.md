@@ -8,12 +8,6 @@
 下载地址：https://cdn.mysql.com//Downloads/MySQL-8.0/mysql-8.0.21-winx64.zip
 
 ---
-
-[toc]
-
----
-
-
 总览
 
 |描述|说明|

@@ -9,28 +9,58 @@
 ---
 
 
-总览
+## 一、查看当前的数据库列表
+```
+// 语法结构
+SHOW {DATABASES | SCHEMAS} 
+[LIKE 'pattern' | WHERE expr]
 
-|描述|说明|
-|---|---|
-|创建数据库|CREATE DATABASE|
-|修改数据库|ALTER DATABASE|
-|删除数据库|DROP DATABASE|
-
+// 示例
+mysql>SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| t1                 |
++--------------------+
+5 rows in set (0.04 sec)
+```
 ---
----
 
-# 一、操作数据库
+## 二、打开数据库
 
 ```
-// 说明
-{} 表示 必填参数
-|  表示 要在其中做选择
-[] 表示 可选参数
+// 语法
+USE db_name;
+
+// 示例
+root@localhost (none)> USE t1;// 输入命令
+Database changed // 提示数据库切换成功
+root@localhost t1> // 提示符也已经转变为 t1
+```
+### 查看当前打开的数据库
+
+```
+// 语句
+SELECT DATABASE();
+
+// 示例
+root@localhost t1> SELECT DATABASE();
++------------+
+| DATABASE() |
++------------+
+| t1         |
++------------+
+1 row in set (0.00 sec)
 ```
 ---
 
-### 1、创建数据库
+## 三、数据库基础操作
+
+### 3.1、创建数据库
 ```
 // 语法结构
 CREATE {DATABASE | SCHEMA} [IF NOT EXISTS] db_name [DEFAULT] CHARACTER SET [=] charset_name
@@ -85,7 +115,7 @@ mysql>SHOW CREATE DATABASE t2; // 查看数据库 't2' 创建时的语句
 1 row in set (0.00 sec)
 ```
 ---
-### 2、修改数据库
+### 3.2、修改数据库
 ```
 // 语法结构
 ALTER {DATABASE | SCHEMA} [db_name] [DEFAULT] CHARACTER SET [=] charset_name
@@ -104,7 +134,7 @@ mysql>SHOW CREATE DATABASE t2; // 再次查看数据库 't2'的编码，发现�
 1 row in set (0.00 sec)
 ```
 ---
-### 3、删除数据库
+### 3.3、删除数据库
 ```
 // 语法结构
 DROP {DATABASE | SCHEMA} [IF EXISTS] db_name
@@ -130,28 +160,12 @@ mysql>SHOW DATABASES; // 查看所有数据库列表发现已经没有't1'
 5 rows in set (0.00 sec)
 ```
 ---
-### 4、查看当前服务器下的数据库表列表
-```
-// 语法结构
-SHOW {DATABASES | SCHEMAS} 
-[LIKE 'pattern' | WHERE expr]
 
-// 示例
-mysql>SHOW DATABASES;
-+--------------------+
-| Database           |
-+--------------------+
-| information_schema |
-| mysql              |
-| performance_schema |
-| sys                |
-| t1                 |
-+--------------------+
-5 rows in set (0.04 sec)
-```
+## 四、其它操作
+
 ---
 
-### 5、导入与导出数据
+### 导入与导出数据
 [参考链接][1]
 创建新库并重新导入
 当数据库体积比较小时，最快的方法通常是使用 mysqldump 命令来创建整个数据库的转存副本，然后新建数据库，再把副本导入到新数据库中。
