@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "vuepress": "^1.7.1"
+  },
+  "dependencies": {
+    "vuepress-theme-vdoing": "^1.5.1"
   }
 }

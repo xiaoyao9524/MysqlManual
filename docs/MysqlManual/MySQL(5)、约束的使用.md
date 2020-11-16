@@ -1,3 +1,12 @@
+---
+title: MySQL(5)、约束的使用
+date: 2020-11-16 15:05:42
+permalink: /pages/58809c/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(5)、约束的使用
 
 标签（空格分隔）： mysql

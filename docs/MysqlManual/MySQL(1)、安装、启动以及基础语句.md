@@ -1,3 +1,12 @@
+---
+title: MySQL(1)、安装、启动以及基础语句
+date: 2020-11-06 15:32:42
+permalink: /pages/dac2a7/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(1)、安装、启动以及基础语句
 
 标签（空格分隔）： mysql

@@ -1,3 +1,12 @@
+---
+title: MySQL(2)、数据库操作
+date: 2020-11-06 15:33:07
+permalink: /pages/db51de/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(2)、数据库操作
 
 标签（空格分隔）： mysql

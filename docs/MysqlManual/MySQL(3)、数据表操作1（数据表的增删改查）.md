@@ -1,3 +1,12 @@
+---
+title: MySQL(3)、数据表操作1（数据表的增删改查）
+date: 2020-11-16 10:26:04
+permalink: /pages/b0dfe6/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(3)、数据表操作1（数据表的增删改查）
 
 标签（空格分隔）： mysql

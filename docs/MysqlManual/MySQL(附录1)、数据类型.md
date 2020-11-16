@@ -1,3 +1,12 @@
+---
+title: MySQL(附录1)、数据类型
+date: 2020-11-16 14:37:00
+permalink: /pages/721108/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(附录1)、数据类型
 
 标签（空格分隔）： mysql

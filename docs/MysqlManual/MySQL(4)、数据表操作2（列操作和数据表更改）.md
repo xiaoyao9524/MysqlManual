@@ -1,3 +1,12 @@
+---
+title: MySQL(4)、数据表操作2（列操作和数据表更改）
+date: 2020-11-16 10:29:46
+permalink: /pages/a4d412/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(4)、数据表操作2（列操作和数据表更改）
 
 标签（空格分隔）： mysql

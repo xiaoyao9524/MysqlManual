@@ -1,3 +1,12 @@
+---
+title: MySQL(6)、操作数据表中的记录
+date: 2020-11-16 15:05:47
+permalink: /pages/3f5845/
+categories:
+  - MysqlManual
+tags:
+  - 
+---
 # MySQL(6)、操作数据表中的记录
 
 标签（空格分隔）： mysql
