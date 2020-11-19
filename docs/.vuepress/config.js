@@ -6,7 +6,8 @@ const docList = [
   {text: 'MySQL(5)、约束的使用', link: '/MysqlManual/MySQL(5)、约束的使用'},
   {text: 'MySQL(6)、操作数据表中的记录', link: '/MysqlManual/MySQL(6)、操作数据表中的记录'},
   {text: 'MySQL(附录1)、数据类型', link: '/MysqlManual/MySQL(附录1)、数据类型'},
-  {text: 'MySQL(附录2)、常见问题', link: '/MysqlManual/MySQL(附录2)、常见问题'}
+  {text: 'MySQL(附录2)、常见问题', link: '/MysqlManual/MySQL(附录2)、常见问题'},
+  {text: 'MySQL(7)、子查询', link: '/MysqlManual/MySQL(7)、子查询'}
 ]
 
 module.exports = {
