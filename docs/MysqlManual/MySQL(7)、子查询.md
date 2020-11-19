@@ -1,7 +1,7 @@
 ---
 title: MySQL(7)、子查询
 date: 2020-11-19 14:31:28
-permalink: /pages/528d5d/
+permalink: /pages/8e857b/
 categories:
   - MysqlManual
 tags:
@@ -492,7 +492,174 @@ root@localhost test > DESC tdb_goods; // 再次查看发现修改成功
 +-------------+------------------------+------+-----+---------+----------------+
 7 rows in set (0.00 sec)
 ```
+### 继续添加几个分类和品牌
+```
+root@localhost test > INSERT tdb_goods_cates(cate_name) VALUES('路由器'),('交换机'),('网卡');     
+INSERT tdb_goods_brands(brand_name) VALUES('海尔'),('清华同方'),('神舟');
+Query OK, 3 rows affected (0.02 sec)
+Records: 3  Duplicates: 0  Warnings: 0
 
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+```
+
+### 继续添加一个商品
+```
+root@localhost test > INSERT tdb_goods(goods_name,cate_id,brand_id,goods_price) VALUES(' LaserJet Pro P1606dn 黑白激光打印机','12','4','1849'); // 但是注意，此商品的分类id为12，但是此时并没有id为12的分类
+Query OK, 1 row affected (0.00 sec)
+
+// 查看商品表
+root@localhost test > SELECT * FROM tdb_goods\G;
+*************************** 23. row ***************************
+   goods_id: 23
+ goods_name:  LaserJet Pro P1606dn 黑白激光打印机
+    cate_id: 12 // 此时并没有id为12的分类
+   brand_id: 4
+goods_price: 1849.000
+    is_show: 1
+ is_saleoff: 0
+23 rows in set (0.00 sec)
+
+// 查看分类表
+root@localhost test > SELECT * FROM tdb_goods_cates;
++---------+---------------------+
+| cate_id | cate_name           |
++---------+---------------------+
+|       1 | 笔记本              |
+|       2 | 游戏本              |
+|       3 | 超级本              |
+|       4 | 平板电脑            |
+|       5 | 台式机              |
+|       6 | 服务器/工作站       |
+|       7 | 笔记本配件          |
+|       8 | 路由器              |
+|       9 | 交换机              |
+|      10 | 网卡                | // 并没有id为12的分类
++---------+---------------------+
+10 rows in set (0.00 sec)
+```
+---
+## 五、连接
+
+> MySQL在SELECT语句、多表更新、多表删除语句中支持JOIN操作。
+
+---
+## 六、数据表参照
+```
+// 语法
+table_references
+tbl_name[[AS] alias] | table_subquery [AS] alias
+/*
+数据表可以使用tbl_name AS alias_name 或tbl_name alias_name 赋予别名。
+
+table_subquery可以作为子查询使用在FROM子句中，这样的子查询必须为其赋予别名。
+*/
+```
+---
+
+## 七、连接类型
+```
+1.INNER JOIN 内连接
+    在MySQL中，JOIN、CROSS JOIN和INNER JOIN是等价的，一般使用 INNER JOIN
+2.LEFT [OUTER] JOIN，左外连接
+3.RIGHT [OUTER] JOIN，右外连接
+```
+---
+## 八、连接条件
+```
+使用ON关键字来设定连接条件，也可以使用WHERE来代替。
+
+通常使用ON关键字来设定连接条件，
+使用WHERE关键字进行结果集记录的过滤。
+```
+---
+## 九、各种连接的区别
+### 9.1、内连接
+显示左表及右表符合连接条件的记录
+[视频地址：0:56开始][1]
+
+```
+// 内连接示例-查找商品表并将分类以文字形式呈现
+root@localhost test > SELECT goods_id,goods_name,cate_name FROM tdb_goods INNER JOIN tdb_goods_cates ON tdb_goods.cate_id = tdb_goods_cates.cate_id;
++----------+-------------------------+---------------------+
+| goods_id | goods_name              | cate_name           |
++----------+-------------------------+---------------------+
+|        1 | R510VC 15.6英寸笔记本   | 笔记本              |
+...
+|       22 | 商务双肩背包            | 笔记本配件          |
++----------+-------------------------+---------------------+
+22 rows in set (0.00 sec) // 注意一共查出了22条记录，因为有一条并未查出cate_name
+
+```
+
+### 9.2、左外连接
+显示左表全部记录及右表符合连接条件的记录
+
+```
+// 左外连接示例-查找商品表并将分类以文字形式呈现
+root@localhost test > SELECT goods_id,goods_name,cate_name FROM tdb_goods LEFT JOIN tdb_goods_cates ON tdb_goods.cate_id = tdb_goods_cates.cate_id; // 我们将上一句中的'INNER JOIN' 替换成 'LEFT JOIN'
++----------+-------------------------------------+----------+
+| goods_id | goods_name                          | cate_name|
++----------+------------------------+-----------------------+
+|1         |R510VC 15.6英寸笔记本                | 笔记本   |
+// ...
+|23        |LaserJet Pro P1606dn 黑白激光打印机  | NULL     | // 注意由于此条记录没有在右表中查出对应的值，所以为NULL
++----------+----------------------------------+-------------+
+23 rows in set (0.00 sec) // 注意这次把所有的23条都查了出来
+```
+
+### 9.3、右外连接
+显示右表全部记录及左表符合连接条件的记录
+```
+root@localhost test > SELECT goods_id,goods_name,cate_name FROM tdb_goods RIGHT JOIN tdb_goods_cates ON tdb_goods.cate_id = tdb_goods_cates.cate_id; // 我们将上一句中的'LEFT JOIN' 替换成 'RIGHT JOIN'
++----------+---------------------------+---------------------+
+| goods_id | goods_name                | cate_name           |
++----------+---------------------------+---------------------+
+|        1 | R510VC 15.6英寸笔记本     | 笔记本              |
+|        2 | Y400N 14.0英寸笔记本电脑  | 笔记本              |
+// ...
+|       21 |  HMZ-T3W 头戴显示设备     | 笔记本配件          |
+|       22 | 商务双肩背包              | 笔记本配件          |
+|     NULL | NULL                      | 路由器              |
+|     NULL | NULL                      | 交换机              |
+|     NULL | NULL                      | 网卡                |
++----------+---------------------------+---------------------+
+25 rows in set (0.00 sec) // 这次是查出25条记录，因为新添加的打印机商品的cate_id为12，在右表中没有对应的数据，所以没有查出来，所以一共是22条商品，注意最后三项，由于没有在左边中查出对应信息，所以显示NULL，加上前面22条商品记录，一共25条
+```
+---
+## 十、多表连接
+```
+// 示例-查找商品表并将分类和品牌同时以文字形式呈现
+root@localhost test > SELECT goods_id,goods_name,cate_name,brand_name,goods_price FROM tdb_goods AS g
+    -> INNER JOIN tdb_goods_cates AS c ON g.cate_id = c.cate_id
+    -> INNER JOIN tdb_goods_brands AS b ON g.brand_id = b.brand_id;
++----------+--------------------+---------------------+------------+-------------+
+| goods_id | goods_name         | cate_name           | brand_name | goods_price |
++----------+--------------------+---------------------+------------+-------------+
+|1 | R510VC 15.6英寸笔记本      | 笔记本              | 华硕       |    3399.000 |
+|2 | Y400N 14.0英寸笔记本电脑   | 笔记本              | 联想       |    4899.000 |
+// ...
+|21 |  HMZ-T3W 头戴显示设备     | 笔记本配件          | 索尼       |    6999.000 |
+|22 | 商务双肩背包              | 笔记本配件          | 索尼       |      99.000 |
++----------+--------------------+---------------------+------------+-------------+
+22 rows in set (0.00 sec)
+```
+---
+## 十一、关于连接的几点说明
+### 外连接
+A LEFT JOIN B join_condition
+
+数据表B的结果集依赖数据表A
+
+数据表A的结果集根据左连接条件依赖所有数据表（B表除外）。
+
+做外连接条件决定如何检索数据表B（在没有指定WHERE条件的情况下）。
+
+如果数据表A的某条记录符合WHERE条件，但是在数据表B不存在符合连接条件的记录，将生成一个所有列为空的额外的B行。
+
+如果使用内连接查找的记录在连接数据表中不存在，并且在WHERE子句中尝试以下操作:
+
+col_name IS NULL 时，如果col_name被定义为NOT NULL，MySQL将在找到符合连接条件的记录后停止搜索更多的行。
 
 ---
 ## 附录
@@ -557,3 +724,6 @@ root@localhost test > DESC tdb_goods; // 再次查看发现修改成功
 
  INSERT tdb_goods (goods_name,goods_cate,brand_name,goods_price,is_show,is_saleoff) VALUES('商务双肩背包','笔记本配件','索尼','99',DEFAULT,DEFAULT);
 ```
+
+
+  [1]: https://www.imooc.com/video/2406
