@@ -1,12 +1,3 @@
----
-title: MySQL(7)、子查询
-date: 2020-11-19 14:31:28
-permalink: /pages/8e857b/
-categories:
-  - MysqlManual
-tags:
-  - 
----
 # MySQL(7)、子查询
 
 标签（空格分隔）： mysql
@@ -662,9 +653,141 @@ A LEFT JOIN B join_condition
 col_name IS NULL 时，如果col_name被定义为NOT NULL，MySQL将在找到符合连接条件的记录后停止搜索更多的行。
 
 ---
+
+## 十二、无限级分类的表设计
+
+```
+// 1、创建数据表-请查看附录2
+// 2、写入数据-请查看附录2
+// 3、查看数据
+root@localhost test > SELECT * FROM tdb_goods_types;
++---------+-----------------+-----------+
+| type_id | type_name       | parent_id |
++---------+-----------------+-----------+
+|       1 | 家用电器        |         0 |
+|       2 | 电脑、办公      |         0 |
+|       3 | 大家电          |         1 |
+|       4 | 生活电器        |         1 |
+|       5 | 平板电视        |         3 |
+|       6 | 空调            |         3 |
+|       7 | 电风扇          |         4 |
+|       8 | 饮水机          |         4 |
+|       9 | 电脑整机        |         2 |
+|      10 | 电脑配件        |         2 |
+|      11 | 笔记本          |         9 |
+|      12 | 超级本          |         9 |
+|      13 | 游戏本          |         9 |
+|      14 | CPU             |        10 |
+|      15 | 主机            |        10 |
++---------+-----------------+-----------+
+15 rows in set (0.04 sec)
+
+```
+---
+## 十三、自身连接
+同一个数据表对其自身进行连接
+```
+// 示例1-查询tdb_goods_types表并将父类以文字形式呈现
+root@localhost test > SELECT s.type_id, s.type_name, p.type_name FROM tdb_goods_types AS s LEFT JOIN tdb_goods_types AS p 
+    -> ON s.parent_id = p.type_id;
++---------+-----------------+-----------------+
+| type_id | type_name       | type_name       |
++---------+-----------------+-----------------+
+|       1 | 家用电器        | NULL            |
+|       2 | 电脑、办公      | NULL            |
+|       3 | 大家电          | 家用电器        |
+|       4 | 生活电器        | 家用电器        |
+|       5 | 平板电视        | 大家电          |
+|       6 | 空调            | 大家电          |
+|       7 | 电风扇          | 生活电器        |
+|       8 | 饮水机          | 生活电器        |
+|       9 | 电脑整机        | 电脑、办公      |
+|      10 | 电脑配件        | 电脑、办公      |
+|      11 | 笔记本          | 电脑整机        |
+|      12 | 超级本          | 电脑整机        |
+|      13 | 游戏本          | 电脑整机        |
+|      14 | CPU             | 电脑配件        |
+|      15 | 主机            | 电脑配件        |
++---------+-----------------+-----------------+
+15 rows in set (0.04 sec)
+
+// 示例2-查询tdb_goods_types表并将每一项的子类以文字形式呈现
+root@localhost test > SELECT p.type_id, p.type_name,s.type_name FROM tdb_goods_types p LEFT JOIN tdb_goods_types s
+    -> ON s.parent_id = p.type_id;
++---------+-----------------+--------------+
+| type_id | type_name       | type_name    |
++---------+-----------------+--------------+
+|       1 | 家用电器        | 大家电       |
+|       1 | 家用电器        | 生活电器     |
+|       2 | 电脑、办公      | 电脑整机     |
+|       2 | 电脑、办公      | 电脑配件     |
+|       3 | 大家电          | 平板电视     |
+|       3 | 大家电          | 空调         |
+|       4 | 生活电器        | 电风扇       |
+|       4 | 生活电器        | 饮水机       |
+|       5 | 平板电视        | NULL         |
+|       6 | 空调            | NULL         |
+|       7 | 电风扇          | NULL         |
+|       8 | 饮水机          | NULL         |
+|       9 | 电脑整机        | 笔记本       |
+|       9 | 电脑整机        | 超级本       |
+|       9 | 电脑整机        | 游戏本       |
+|      10 | 电脑配件        | CPU          |
+|      10 | 电脑配件        | 主机         |
+|      11 | 笔记本          | NULL         |
+|      12 | 超级本          | NULL         |
+|      13 | 游戏本          | NULL         |
+|      14 | CPU             | NULL         |
+|      15 | 主机            | NULL         |
++---------+-----------------+--------------+
+22 rows in set (0.00 sec)
+```
+---
+## 十四、多表删除
+```
+// 语法
+DELETE tbl_name[.*] [,tbl_name[.*]]...
+FROM table_references
+[WHERE where_condition]
+
+// 示例-将名字重复的项删除，保留id较小的那一项
+// 1、查看tdb_goods表
+// 我们发现18、21商品名称重复，19、22商品名称也重复
+root@localhost test > SELECT * FROM tdb_goods;
++----------+----+------------+
+| goods_id | goods_name | cate_id | brand_id | goods_price | is_show | is_saleoff |
++----------------------------------------+----+---+----------+---+---+------------+
+// ...
+| 18 | HMZ-T3W 头戴显示设备               | 7  | 4 | 6999.000 | 1 | 0 |
+| 19 | 商务双肩背包                       | 7  | 4 | 99.000   | 1 | 0 |
+| 20 | X3250 M4机架式服务器 2583i14       | 6  | 9 | 6888.000 | 1 | 0 |
+| 21 | HMZ-T3W 头戴显示设备               | 7  | 4 | 6999.000 | 1 | 0 |
+| 22 | 商务双肩背包                       | 7  | 4 | 99.000   | 1 | 0 |
+| 23 | LaserJet Pro P1606dn 黑白激光打印机| 12 | 4 | 1849.000 | 1 | 0 |
++----------+----------------------+---------+----------+-------------+---------+--+
+23 rows in set (0.04 sec)
+
+// 2、开始删除
+root@localhost test > DELETE t1 FROM tdb_goods AS t1 LEFT JOIN ( SELECT goods_id, goods_name FROM tdb_goods GROUP BY goods_name HAVING count(goods_name) >= 2) AS t2 ON t1.goods_name = t2.goods_name WHERE t1.goods_id > t2.goods_id;
+Query OK, 2 rows affected (0.01 sec)
+
+// 3、再次查看发现21、22已经被删除
+root@localhost test > SELECT * FROM tdb_goods;
++----------+-------------------+---------+----------+-------------+---------+------------+
+| goods_id | goods_name  | cate_id | brand_id | goods_price | is_show | is_saleoff |
++----------+-------------------+---------+----------+-------------+---------+------------+
+// ...
+| 19 | 商务双肩背包                         | 7  | 4 | 99.000   | 1 | 0 |
+| 20 | X3250 M4机架式服务器 2583i14         | 6  | 9 | 6888.000 | 1 | 0 |
+| 23 |  LaserJet Pro P1606dn 黑白激光打印机 | 12 | 4 | 1849.000 | 1 | 0 |
++----------+--------------------+---------+----------+-------------+---------+------------+
+21 rows in set (0.00 sec)
+```
+
+---
 ## 附录
 
-### 1、本章节使用数据-创建数据表
+### 1、tdb_goods 表-创建数据表
 ```
   CREATE TABLE IF NOT EXISTS tdb_goods(
     goods_id    SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -676,7 +799,7 @@ col_name IS NULL 时，如果col_name被定义为NOT NULL，MySQL将在找到符
     is_saleoff  BOOLEAN NOT NULL DEFAULT 0
   );
 ```
-### 2、本章节使用数据-写入记录
+### 2、tdb_goods 表-写入记录
 ```
  INSERT tdb_goods (goods_name,goods_cate,brand_name,goods_price,is_show,is_saleoff) VALUES('R510VC 15.6英寸笔记本','笔记本','华硕','3399',DEFAULT,DEFAULT);
  
@@ -724,6 +847,34 @@ col_name IS NULL 时，如果col_name被定义为NOT NULL，MySQL将在找到符
 
  INSERT tdb_goods (goods_name,goods_cate,brand_name,goods_price,is_show,is_saleoff) VALUES('商务双肩背包','笔记本配件','索尼','99',DEFAULT,DEFAULT);
 ```
+
+## 附录2、无限级分类的表设计数据
+
+### 创建数据表
+CREATE TABLE tdb_goods_types(      
+    type_id   SMALLINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,      
+    type_name VARCHAR(20) NOT NULL,      
+    parent_id SMALLINT UNSIGNED NOT NULL DEFAULT 0   
+);
+
+### 写入数据
+INSERT tdb_goods_types(type_name,parent_id) VALUES('家用电器',DEFAULT);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('电脑、办公',DEFAULT);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('大家电',1);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('生活电器',1);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('平板电视',3);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('空调',3);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('电风扇',4);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('饮水机',4);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('电脑整机',2);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('电脑配件',2);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('笔记本',9);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('超级本',9);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('游戏本',9);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('CPU',10);
+INSERT tdb_goods_types(type_name,parent_id) VALUES('主机',10);
+
+
 
 
   [1]: https://www.imooc.com/video/2406
